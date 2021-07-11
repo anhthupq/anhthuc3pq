@@ -1,0 +1,23 @@
+{
+  "name": "anhthuc3pq",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "yarn nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anhthupq/anhthuc3pq.git"
+  },
+  "bugs": {
+    "url": "https://github.com/anhthupq/anhthuc3pq/issues"
+  },
+  "homepage": "https://github.com/anhthupq/anhthuc3pq#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
