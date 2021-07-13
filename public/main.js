@@ -6,6 +6,10 @@ $(function () {
   var arrayData = [];
   solrUrlPrefix = "/solr/collection1/";
 
+
+  // init click event
+  $('#login').click(handleLogin)
+
   function videoResults(name, path) {
     this.videoName = name;
     this.videoPath = path;
@@ -536,3 +540,28 @@ $(function () {
     location.reload();
   }
 });
+
+
+/**
+ curl http://127.0.0.1:9200/multimedia/multimedia/_search?pretty=true
+
+ curl -XPUT 'localhost:9200/_river/multimedia/_meta' -d '{
+    "type" : "couchdb",
+    "couchdb" : {
+        "host" : "localhost",
+        "port" : 5984,
+        "db" : "multimedia",
+        "filter" : null,
+        "username": "admin",
+        "password": "admin"
+    },
+    "index" : {
+        "index" : "multimedia",
+        "type" : "multimedia",
+        "bulk_size" : "100",
+        "bulk_timeout" : "10ms"
+    }
+}'
+
+curl -X PUT 'http://127.0.0.1:9200/_river/testdb/_meta' -d '{ "type" : "couchdb", "couchdb" : { "host" : "localhost", "username":"admin","password":"admin", "port" : 5984, "db" : "testdb", "filter" : null }, "index" : { "index" : "testdb", "type" : "testdb", "bulk_size" : "100", "bulk_timeout" : "10ms" } }'
+ */
