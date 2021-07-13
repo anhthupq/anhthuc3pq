@@ -3,12 +3,233 @@ $(function () {
   var username = "admin"; //username connect database
   var password = "admin"; //password connect database
   var database = "multimedia"; //database name
-  var arrayData = [];
   solrUrlPrefix = "/solr/collection1/";
 
 
-  // init click event
-  $('#login').click(handleLogin)
+  /**
+  =============================== CLICK EVENT   ======================
+  **/
+  $("#btn-add-doc").click(addDoc);
+  $("#login").click(handleLogin);
+  $("#btn-search").click(loadData)
+  $("#typeSearch").change(function(){
+      const searchType = $(this).children("option:selected").val();
+      localStorage.setItem("searchType",searchType)
+    });
+
+
+  loadData()
+  /**
+        DOCUMENT CRUD
+  **/
+
+  this.DeleteDoc = function(id, rev) {
+    const body = {
+      "_rev": rev
+    };
+    fetch("/database/delete/"+id, {
+      method: "DELETE", // or 'PUT'
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setTimeout(()=>{
+          location.reload()
+        }, 500);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+
+  this.EditDoc = function (id,rev) {
+    $("#editModal").modal('show');
+
+    // initial value for form
+    const inputs = document.getElementsByClassName('input-table ' + id);
+    const inputData = [];
+    for (let i = 0; i < inputs.length; i++) {
+      inputs[i].disabled = false;
+      inputs[i].style.border = " 1px";
+      inputData.push(inputs[i].value);
+    }
+    $("#text-input-edit-name").val(inputData[0]);
+    $("#text-input-edit-the-loai").val(inputData[1]);
+    $("#text-input-edit-dao-dien").val(inputData[2]);
+    $("#text-input-edit-kich-ban").val(inputData[3]);
+    $("#text-input-edit-bien-tap").val(inputData[4]);
+    $("#text-input-edit-videeo").val(inputData[5]);
+
+    // set onclick addEventListener
+    $('#edit-modal').click(function(){
+      const body = {
+        "_rev": rev,
+        "TÊN": $("#text-input-edit-name").val(),
+        "THỂ LOẠI": $("#text-input-edit-the-loai").val(),
+        "KỊCH BẢN": $("#text-input-edit-kich-ban").val(),
+        "ĐẠO DIỄN": $("#text-input-edit-dao-dien").val(),
+        "BIÊN TẬP": $("#text-input-edit-bien-tap").val(),
+        "VIDEO": $("#text-input-edit-video"),
+      };
+      fetch("/database/edit/"+id, {
+        method: "PUT", // or 'PUT'
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setTimeout(()=>{
+            location.reload()
+          }, 500);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    })
+  }
+
+  function loadData() {
+    const searchType = localStorage.getItem('searchType') || 'name'
+    const searchTag = $('#tagsearch').val()
+    console.log({
+      searchType,
+      searchTag
+    })
+    let url = '/search';
+    if(searchTag){
+      const params = new URLSearchParams({
+        [searchType]: searchTag
+      });
+      url = `/search?${params.toString()}`
+    }
+
+    const myHeaders = new Headers();
+    myHeaders.append('pragma', 'no-cache');
+    myHeaders.append('cache-control', 'no-cache');
+    fetch(url, {
+      method: "GET",
+      headers: myHeaders
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        $("#table-cart-body").remove();
+        $("#table-doc").append(`<tbody id="table-cart-body">`);
+
+        for (const media of response.docs) {
+          if (media) {
+            $("#table-cart-body").append(`
+                <tr id="table-cart-body-tr">
+                  <td>
+                    <input  type="checkbox" onclick="SelectTable('${media.id}','${media.doc._rev}')"/>
+                  </td>
+
+                  <td scope="row">
+                    <input class="input-table ${media.id}" disabled type=text value="${media.doc["TÊN"] ? media.doc["TÊN"] : "Không có"}"/>
+                  </td>
+
+                  <td scope="row">
+                    <input class="input-table ${media.id}" disabled type=text value="${media.doc["THỂ LOẠI"] ? media.doc["THỂ LOẠI"] : "Không có"}"/>
+                  </td>
+
+                  <td scope="row">
+                    <input class="input-table ${media.id}" disabled type=text value="${media.doc["ĐẠO DIỄN"] ? media.doc["ĐẠO DIỄN"] : "Không có"}"/>
+                  </td>
+
+                  <td scope="row">
+                    <input class="input-table ${media.id}" disabled type=text value="${media.doc["KỊCH BẢN"] ? media.doc["KỊCH BẢN"] : "Không có"}"/>
+                  </td>
+
+                  <td scope="row">
+                    <input class="input-table ${media.id}" disabled type=text value="${media.doc["BIÊN TẬP"] ? media.doc["BIÊN TẬP"] : "Không có"}"/>
+                  </td>
+
+                  <td id="${media.id}" scope="row">
+                    <td scope="col">
+                      <button class="btn btn-primary updateButton"  onclick="EditDoc('${media.id}','${media.doc._rev}') ">Sửa</button>
+                    </td>
+
+                  <td scope="col">
+                    <button class="btn btn-danger deleteButton" onclick="DeleteDoc('${media.id}','${media.doc._rev}')">Xoá</button>
+                  </td>
+
+                </tr>`);
+
+            if (media.doc._attachments) {
+              for (let i = 0; i < Object.keys(media.doc._attachments).length; i++) {
+                $("#" + media.id).append(`
+                <i
+                  style="margin-right:5px;"
+                  onclick="PlayVideo('${Object.keys(media.doc._attachments)[i]}','${media.id}')"
+                  class="fas fa-play"></i>
+                  </td>
+              `);
+              }
+            }
+          }
+        }
+
+        $("#table-doc").append(`</tbody>`);
+
+        const elements = $(".updateButton").children();
+        const elementsDelete = $(".deleteButton").children();
+        let btnAdd = $("#btnAdd");
+        const btnLogout = $("#btnLogout");
+        const btnLogin = $("#btnLogin");
+
+        if (JSON.parse(localStorage.getItem("isLogged")) == true) {
+          btnAdd.removeClass("hidden");
+          btnLogout.css('display', "block");
+          btnLogin.css('display', "none");
+          for (let i = 0; i < elements.length; i++) {
+            elements[i].removeClass("hidden");
+            elementsDelete[i].removeClass("hidden");
+          }
+        } else {
+          btnAdd.addClass("hidden");
+          btnLogout.css('display', "none");
+          btnLogin.css('display', "block");
+          for (let i = 0; i < elements.length; i++) {
+            elements[i].addClass("hidden");
+            elementsDelete[i].addClass("hidden");
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+
+  function addDoc() {
+    const body = {
+      "TÊN": $("#text-input-name").val(),
+      "THỂ LOẠI": $("#text-input-the-loai").val(),
+      "KỊCH BẢN": $("#text-input-kich-ban").val(),
+      "ĐẠO DIỄN": $("#text-input-dao-dien").val(),
+      "BIÊN TẬP": $("#text-input-bien-tap").val(),
+      "VIDEO": $("#text-input-video"),
+    };
+    fetch("/database/add", {
+      method: "POST", // or 'PUT'
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setTimeout(()=>{
+            location.reload();
+        },500)
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
 
   function videoResults(name, path) {
     this.videoName = name;
@@ -242,9 +463,6 @@ $(function () {
       location.reload();
     });
   }
-  $(document).ready(function () {
-    Call();
-  });
   function PlayVideo(attach, id) {
     console.log(attach, id);
     // for (let i = 0; i < arrayData.rows.length; i++) {
@@ -260,260 +478,12 @@ $(function () {
     // }
     window.open("http://127.0.0.1:5984/multimedia/" + id + "/" + attach);
   }
-  function addDoc() {
-    var inputData = {
-      id: document.getElementById("text-input-id").value,
-      content: {
-        TÊN: document.getElementById("text-input-name").value,
-        "THỂ LOẠI": document.getElementById("text-input-bien-tap").value,
-        "KỊCH BẢN": document.getElementById("text-input-ng-duyet-nd").value,
-        "ĐẠO DIỄN": document.getElementById("text-input-cd-thuc-hien").value,
-        "BIÊN TẬP": document.getElementById("text-input-nam-san-xuat").value,
-      },
-    };
-    console.log("debug -", inputData);
-    var settings = {
-      url: url_db + database + "/" + inputData.id,
-      username: username,
-      password: password,
-      method: "PUT",
-      timeout: 0,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Basic " + btoa(username + ":" + password),
-      },
-      data: JSON.stringify(inputData.content),
-    };
-    $.ajax(settings).done(function (response) {
-      console.log(response);
-      location.reload();
-    });
-  }
+
   function openModalEdit(id) {
     $("#editModal").modal("show");
     return id;
   }
-  function Call() {
-    var account = [
-      {
-        user: "admin",
-        password: "admin",
-      },
-    ];
 
-    localStorage.setItem("account", JSON.stringify(account));
-    $.ajax({
-      url: url_db + database + "/_all_docs?include_docs=true",
-      username: username,
-      password: password,
-      method: "GET",
-      dataType: "jsonp",
-      timeout: 0,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Basic " + btoa(username + ":" + password),
-      },
-      success: function (response) {
-        console.log(Object.keys(response.rows[1].doc._attachments));
-        arrayData = response;
-        if (document.getElementById("tagsearch").value != "") {
-          localStorage.setItem(
-            "searchDoc",
-            document.getElementById("tagsearch").value
-          );
-          console.log("eeee", document.getElementById("tagsearch").value);
-          localStorage.setItem("arrDoc", JSON.stringify(response.rows));
-          $("#table-cart-body").remove();
-          $(".modal-body").append(`<div class="form-group row">
-						<label for="example-email-input" class="col-2 col-form-label">Tên</label>
-						<div class="col-6">
-							<input class="form-control" type="email" id="text-input-edit-name">
-						</div>
-					</div>
-					<div class="form-group row">
-						<label for="example-url-input" class="col-2 col-form-label">THỂ LOẠI</label>
-						<div class="col-6">
-							<input class="form-control" type="url" id="text-input-edit-bien-tap">
-						</div>
-					</div>
-					<div class="form-group row">
-						<label for="example-url-input" class="col-2 col-form-label">KỊCH BẢN</label>
-						<div class="col-6">
-							<input class="form-control" type="url" id="text-input-edit-ng-duyet-nd">
-						</div>
-					</div>
-					<div class="form-group row">
-						<label for="example-url-input" class="col-2 col-form-label">ĐẠO DIỄN</label>
-						<div class="col-6">
-							<input class="form-control" type="url" id="text-input-edit-cd-thuc-hien">
-						</div>
-					</div>
-					<div class="form-group row">
-						<label for="example-url-input" class="col-2 col-form-label">BIÊN TẬP</label>
-						<div class="col-6">
-							<input class="form-control" type="url" id="text-input-edit-nam-san-xuat">
-						</div>
-					</div>`);
-          $("#table-doc").append(`
-							<tbody id="table-cart-body">
-						`);
-          const result = response.rows.filter(
-            (word) => word.doc["TÊN"] == localStorage.getItem("searchDoc")
-          );
-          for (const media of result) {
-            if (media) {
-              $("#table-cart-body").append(`
-								<tr id="table-cart-body-tr">
-									<td><input  type="checkbox" onclick="SelectTable('${media.id}','${
-                media.value.rev
-              }')"/></td>
-									<td scope="row"><input class="input-table ${
-                    media.id
-                  }" disabled type=text value="${
-                media.doc["TÊN"] ? media.doc["TÊN"] : "Không có"
-              }"/></td>
-									<td scope="row"><input class="input-table ${
-                    media.id
-                  }" disabled type=text value="${
-                media.doc["THỂ LOẠI"] ? media.doc["THỂ LOẠI"] : "Không có"
-              }"/></td>
-									<td scope="row"><input class="input-table ${
-                    media.id
-                  }" disabled type=text value="${
-                media.doc["ĐẠO DIỄN"] ? media.doc["ĐẠO DIỄN"] : "Không có"
-              }"/></td>
-									<td scope="row"><input class="input-table ${
-                    media.id
-                  }" disabled type=text value="${
-                media.doc["KỊCH BẢN"] ? media.doc["KỊCH BẢN"] : "Không có"
-              }"/></td>
-									<td scope="row"><input class="input-table ${
-                    media.id
-                  }" disabled type=text value="${
-                media.doc["BIÊN TẬP"] ? media.doc["BIÊN TẬP"] : "Không có"
-              }"/></td>
-									<td id="${media.id}" scope="row">
-										<td scope="col"><button class="btn btn-primary updateButton"  onclick="EditDoc('${
-                      media.id
-                    }','${media.value.rev}') ">Sửa</button></td>
-									<td scope="col"><button class="btn btn-danger deleteButton"  onclick="DeleteDoc('${
-                    media.id
-                  }','${media.value.rev}')">Xoá</button></td>
-								</tr>
-									`);
-              if (media.doc._attachments) {
-                console.log("media", Object.keys(media.doc._attachments));
-                for (
-                  let i = 0;
-                  i < Object.keys(media.doc._attachments).length;
-                  i++
-                ) {
-                  $("#" + media.id)
-                    .append(`<i style="margin-right:5px;" onclick="PlayVideo('${
-                    Object.keys(media.doc._attachments)[i]
-                  }','${media.id}')" class="fas fa-play"></i></td>
-										`);
-                }
-              }
-            }
-          }
-          $("#table-doc").append(`
-							</tbody>
-						`);
-        } else {
-          console.log("else");
-          localStorage.setItem("arrDoc", JSON.stringify(response.rows));
-          $("#table-cart-body").remove();
-          $("#table-doc").append(`
-							<tbody id="table-cart-body">
-						`);
-          for (const media of response.rows) {
-            if (media) {
-              $("#table-cart-body").append(`
-								<tr id="table-cart-body-tr">
-									<td><input  type="checkbox" onclick="SelectTable('${media.id}','${
-                media.value.rev
-              }')"/></td>
-									<td scope="row"><input class="input-table ${
-                    media.id
-                  }" disabled type=text value="${
-                media.doc["TÊN"] ? media.doc["TÊN"] : "Không có"
-              }"/></td>
-									<td scope="row"><input class="input-table ${
-                    media.id
-                  }" disabled type=text value="${
-                media.doc["THỂ LOẠI"] ? media.doc["THỂ LOẠI"] : "Không có"
-              }"/></td>
-									<td scope="row"><input class="input-table ${
-                    media.id
-                  }" disabled type=text value="${
-                media.doc["ĐẠO DIỄN"] ? media.doc["ĐẠO DIỄN"] : "Không có"
-              }"/></td>
-									<td scope="row"><input class="input-table ${
-                    media.id
-                  }" disabled type=text value="${
-                media.doc["KỊCH BẢN"] ? media.doc["KỊCH BẢN"] : "Không có"
-              }"/></td>
-									<td scope="row"><input class="input-table ${
-                    media.id
-                  }" disabled type=text value="${
-                media.doc["BIÊN TẬP"] ? media.doc["BIÊN TẬP"] : "Không có"
-              }"/></td>
-									<td id="${media.id}" scope="row">
-										<td scope="col"><button class="btn btn-primary updateButton"  onclick="EditDoc('${
-                      media.id
-                    }','${media.value.rev}') ">Sửa</button></td>
-									<td scope="col"><button class="btn btn-danger deleteButton"  onclick="DeleteDoc('${
-                    media.id
-                  }','${media.value.rev}')">Xoá</button></td>
-								</tr>
-									`);
-              if (media.doc._attachments) {
-                console.log("media", Object.keys(media.doc._attachments));
-                for (
-                  let i = 0;
-                  i < Object.keys(media.doc._attachments).length;
-                  i++
-                ) {
-                  $("#" + media.id)
-                    .append(`<i style="margin-right:5px;" onclick="PlayVideo('${
-                    Object.keys(media.doc._attachments)[i]
-                  }','${media.id}')" class="fas fa-play"></i></td>
-										`);
-                }
-              }
-            }
-          }
-          $("#table-doc").append(`
-							</tbody>
-						`);
-        }
-
-        var elements = document.getElementsByClassName("updateButton");
-        var elementsDelete = document.getElementsByClassName("deleteButton");
-        let btnAdd = document.getElementById("btnAdd");
-        const btnLogout = document.getElementById("btnLogout");
-        const btnLogin = document.getElementById("btnLogin");
-        if (JSON.parse(localStorage.getItem("isLogged")) == true) {
-          btnAdd.classList.remove("hidden");
-          btnLogout.style.display = "block";
-          btnLogin.style.display = "none";
-          for (var i = 0; i < elements.length; i++) {
-            elements[i].classList.remove("hidden");
-            elementsDelete[i].classList.remove("hidden");
-          }
-        } else {
-          btnAdd.classList.add("hidden");
-          btnLogout.style.display = "none";
-          btnLogin.style.display = "block";
-          for (var i = 0; i < elements.length; i++) {
-            elements[i].classList.add("hidden");
-            elementsDelete[i].classList.add("hidden");
-          }
-        }
-      },
-    });
-  }
   function handleLogin() {
     var user = document.getElementById("inputValueUsername").value + "";
     var password = document.getElementById("inputValuePass").value + "";
@@ -540,28 +510,3 @@ $(function () {
     location.reload();
   }
 });
-
-
-/**
- curl http://127.0.0.1:9200/multimedia/multimedia/_search?pretty=true
-
- curl -XPUT 'localhost:9200/_river/multimedia/_meta' -d '{
-    "type" : "couchdb",
-    "couchdb" : {
-        "host" : "localhost",
-        "port" : 5984,
-        "db" : "multimedia",
-        "filter" : null,
-        "username": "admin",
-        "password": "admin"
-    },
-    "index" : {
-        "index" : "multimedia",
-        "type" : "multimedia",
-        "bulk_size" : "100",
-        "bulk_timeout" : "10ms"
-    }
-}'
-
-curl -X PUT 'http://127.0.0.1:9200/_river/testdb/_meta' -d '{ "type" : "couchdb", "couchdb" : { "host" : "localhost", "username":"admin","password":"admin", "port" : 5984, "db" : "testdb", "filter" : null }, "index" : { "index" : "testdb", "type" : "testdb", "bulk_size" : "100", "bulk_timeout" : "10ms" } }'
- */

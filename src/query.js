@@ -4,14 +4,24 @@ const express = require('express')
 const router = express.Router();
 
 // respond with "hello world" when a GET request is made to the homepage
+const mappingQuery = {
+  'name': 'TÊN',
+  'type': 'THỂ LOẠI',
+  'director': 'ĐẠO DIỄN',
+  'content': 'KỊCH BẢN',
+  'writer':'BIÊN TẬP'
+}
 
 router.get('/search', async function (req, res) {
-  let data = {};
+  let data = {
+    total: 0,
+    docs: []
+  };
   let query = {};
   try {
     if(Object.keys(req.query).length !== 0){
       try {
-        let firstKey = 'doc.'+Object.keys(req.query)[0]; // "plainKey"
+        let firstKey = 'doc.'+ mappingQuery[Object.keys(req.query)[0]]; // "plainKey"
         let firstValue = Object.values(req.query)[0]; // "plain value"
         if(firstValue){
           query = {

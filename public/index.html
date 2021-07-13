@@ -4,7 +4,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Truy vấn và cập nhật dữ liệu đa phương tiện</title>
-	
+
 	<link rel="stylesheet" href='/public/main.css' />
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -16,19 +16,19 @@
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 	<!-- Latest compiled JavaScript -->
 	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-	<!-- for capturing video frames 
+	<!-- for capturing video frames
   	<script src="canvas2image.js"></script> -->
 
 	<script src="/public/main.js" lang="text/javascript">
-	
+
 	</script>
 </head>
 
 <body>
 	<!--Edit Modal-->
-	<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModal" aria-hidden="true">
+	<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModal" >
 		<div class="modal-dialog">
-			<div class="modal-content">
+			<div class="modal-content" style="padding: 10px;">
 				<div class="modal-header">
 					<h4 class="modal-title" id="myModalLabel">Sửa</h4>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -130,7 +130,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
-					<button type="button" class="btn btn-primary" onclick="addDoc()">Thêm</button>
+					<button type="button" class="btn btn-primary" id="btn-add-doc">Thêm</button>
 				</div>
 			</div>
 		</div>
@@ -200,8 +200,8 @@
 							placeholder="Nhập thông tin ..." value="" />
 					</th>
 					<th>
-						<a href="javascript:searchUrl(&#39;ce_ha&#39;);" data-role="button" data-mini="true"
-							data-inline="true" onclick="Call()">Tìm</a>
+						<a href="javascript:void(0);" data-role="button" data-mini="true"
+							data-inline="true" id="btn-search">Tìm</a>
 					</th>
 
 				</tr>
@@ -251,232 +251,31 @@
 		<br>
 
 		<script>
-			const customBtn = document.getElementById("custom-button");
-			const realFileBtn = document.getElementById("real-file")
-			const localImageUrl = document.getElementById("urlq");
-			var prefixUrl = "http://localhost:8983/solr/image/";
-
-			customBtn.addEventListener("click", function () {
-				realFileBtn.click();
-			});
-
-			realFileBtn.addEventListener("change", function () {
-				if (realFileBtn.value) {
-					localImageUrl.value = prefixUrl + realFileBtn.value.match(
-						/[\/\\]([\w\d\s\.\-\(\)]+)$/
-					)[1];
-				} else {
-					localImageUrl.value = "No file chosen, yet.";
-				}
-			});
+			// const customBtn = document.getElementById("custom-button");
+			// const realFileBtn = document.getElementById("real-file")
+			// const localImageUrl = document.getElementById("urlq");
+			// var prefixUrl = "http://localhost:8983/solr/image/";
+			//
+			// customBtn.addEventListener("click", function () {
+			// 	realFileBtn.click();
+			// });
+			//
+			// realFileBtn.addEventListener("change", function () {
+			// 	if (realFileBtn.value) {
+			// 		localImageUrl.value = prefixUrl + realFileBtn.value.match(
+			// 			/[\/\\]([\w\d\s\.\-\(\)]+)$/
+			// 		)[1];
+			// 	} else {
+			// 		localImageUrl.value = "No file chosen, yet.";
+			// 	}
+			// });
 		</script>
 
-
-		<script>
-
-			$(document).ready(function () {
-				// // get JSON-formatted data from the server
-				// $("#perf").html("Xin vui lòng chờ kết quả .... <img src=\"img/loader-light.gif\"/>");
-
-				$.getJSON(solrUrlPrefix + "lireq" + "?rows=" + $("#slider-maxFrames").val(), function (myResult) {
-					// $("#perf").html("Thời gian truy vấn: " + myResult.responseHeader.QTime + " ms");
-					printVideoResults(myResult.docs);
-					printResults(myResult.docs);
-				});
-
-			});
-
-			function tagSearchDo() {
-				console.log($('#tagsearch').val());
-				// clear the old dataclearData();
-
-				queryString = solrUrlPrefix + "select?q=" + $('#typeSearch').val() + ":" + $('#tagsearch').val().toUpperCase() + "&wt=json&rows=" + $("#slider-maxFrames").val();
-				console.log(queryString);
-				console.log($('input[name="radio-v-1"]:checked').val());
-				if ($('#sorthist').val()) {
-					if ($('input[name="radio-v-1"]:checked').val() == "boost") {
-						queryString = queryString + "&defType=edismax&boost=div(recip(lirefunc(" + $('#sorthist').val() + "),1,100,100),query($q))&randomParameter=" + Math.floor(Math.random() * 50000); // boost
-						console.log("Using boost");
-					} else if ($('input[name="radio-v-1"]:checked').val() == "sort") {
-						queryString = queryString + "&sort=lirefunc(" + $('#sorthist').val() + ")+asc&randomParameter=" + Math.floor(Math.random() * 50000); // sort
-						console.log("Using sort");
-					} else {
-						queryString = queryString + "&fq={!frange l=0 u=40 cache=false cost=100}lirefunc(" + $('#sorthist').val() + ")"; // range
-						console.log("Using range");
-					}
-
-				}
-				// http://localhost:9000/solr/lire/select?q=tags%3Aaustria%0A&wt=json&indent=true
-				console.log(queryString);
-				$.getJSON(queryString, function (myResult) {
-
-					//$("#perf").html("Thời gian truy vấn: " + myResult.responseHeader.QTime + " ms");
-					$("#imageResults").html("Kết quả cho \"" + $('#tagsearch').val() + "\"");
-					console.log(myResult);
-
-					printVideoResults(myResult.response.docs);
-					printResults(myResult.response.docs);
-
-				});
-
-			}
-
-			$('#tagsearch').keypress(function (e) {
-				if (e.which == 13 && $('#tagsearch').val().length >= 1) {
-					tagSearchDo();
-				}
-			});
-
-			function extract(field, url) {
-				serverUrl = solrUrlPrefix + "lireq?extract=" + url + "&field=" + field + "_ha";
-				console.log(serverUrl);
-				$.getJSON(serverUrl, function (myResult) {
-					console.log(myResult);
-
-					if (!myResult.Error) {
-						$('#sorthist').val(encodeURIComponent(field + ",\"" + myResult.histogram + "\""));
-						tagSearchDo();
-					}
-					else {
-						$("#imageResults").html("Error: \"" + myResult.Error + "\"");
-					}
-
-				});
-			}
-
-			function getRange(field) {
-				var result = "40";
-				if (field == "jc") result = "20";
-				else if (field == "ph") result = "10";
-				else if (field == "ce") result = "100";
-				else if (field == "fc") result = "2000";
-
-				return result;
-			}
-
-			function hashSearch(field, url) {
-				console.log("Url: " + url);
-				serverUrl = solrUrlPrefix + "lireq?extract=" + url + "&field=" + field + "_ha";
-				console.log("Tìm kiếm dựa trên băm: \n " + serverUrl);
-				clearData();
-				//$("#perf").html("Xin vui lòng chờ kết quả .... <img src=\"img/loader-light.gif\"/>");
-
-				$.getJSON(serverUrl, function (myResult) {
-					console.log("Kết quả: " + myResult);
-					if (!myResult.Error) {
-						var hashString = "";
-						//var numHashes = 35;
-						var numHashes = $("#slider-maxFrames").val();
-
-						if ($("#slider-1").val()) {
-							numHashes = Math.floor(myResult.hashes.length * $("#slider-1").val());
-							numHashes = Math.min(myResult.hashes.length, numHashes);
-						}
-						for (var i = 0; i < Math.max(5, numHashes); i++) {
-							hashString += myResult.hashes[i] + " ";
-						}
-						queryString = solrUrlPrefix + "select?q=id:*&fq=" + field + "_ha:(" + hashString.trim() + ")&wt=json&rows=" + $("#slider-maxFrames").val();
-						console.log(" Query String: " + queryString);
-						if ($('input[name="radio-v-1"]:checked').val() == "boost") {
-							queryString = queryString + "&defType=edismax&boost=div(recip(lirefunc(" + encodeURIComponent(field + ",\"" + myResult.histogram + "\"") + "),1,100,100),query($q))"; // boost
-							console.log("Using boost");
-						} else if ($('input[name="radio-v-1"]:checked').val() == "sort") {
-							queryString = queryString + "&sort=lirefunc(" + encodeURIComponent(field + ",\"" + myResult.histogram + "\"") + ")+asc"; // sort
-							console.log("Using sort");
-						} else {
-							queryString = queryString + "&fq={!frange l=0 u=" + getRange(field) + " cache=false cost=100}lirefunc(" + encodeURIComponent(field + ",\"" + myResult.histogram + "\"") + ")"; // range
-							console.log("Using range");
-						}
-
-						console.log("Chuỗi truy vấn: " + queryString);
-
-						// now get the results:
-						$.getJSON(queryString, function (myResult2) {
-							//$("#perf").html("Thời gian truy vấn: " + myResult2.responseHeader.QTime + " ms, " + myResult2.response.numFound + " video được tìm thấy");
-							console.log(myResult2);
-
-							if (!myResult2.Error) {
-								printResults(myResult2.response.docs);
-								printVideoResults(myResult2.response.docs);
-							}
-							else {
-								$("#imageResults").html("Error: \"" + myResult2.Error + "\"");
-							}
-						});
-					}
-					else {
-						$("#imageResults").html("Error: \"" + myResult.Error + "\"");
-					}
-				});
-			}
-
-			function search(idString, field) {
-				console.log(idString);
-				// clear the old data
-				clearData();
-				//$(".row").remove();
-				//$("#perf").html("Xin vui lòng chờ kết quả .... <img src=\"img/loader-light.gif\"/>");
-				$("#imageResults").html("Kết quả cho truy vấn ID\"" + idString + "\"");
-
-				// get all the new data from the server ...
-				serverUrl = solrUrlPrefix + "lireq?rows=" + $("#slider-maxFrames").val() + "&id=" + idString + "&field=" + field;
-				console.log(serverUrl);
-				if ($("#slider-1").val()) serverUrl += "&accuracy=" + $("#slider-1").val();
-				if ($("#slider-can").val()) serverUrl += "&candidates=" + $("#slider-can").val();
-				console.log(serverUrl);
-				$.getJSON(serverUrl, function (myResult) {
-					//$("#perf").html("Thời gian truy vấn: " + myResult.responseHeader.QTime + " ms (Truy vấn: " + myResult.RawDocsSearchTime + " ms, Xếp hạng: " + myResult.ReRankSearchTime + " ms)");
-					console.log(myResult);
-
-					if (!myResult.Error) {
-						printVideoResults(myResult.docs);
-						printResults(myResult.docs);
-					}
-					else {
-						$("#imageResults").html("Error: \"" + myResult.Error + "\"");
-					}
-
-				});
-			}
-
-			function searchUrl(field) {
-
-				console.log($("#slider-1").val());
-
-				// clear the old data
-				clearData();
-				$("#imageResults").html("Kết quả cho truy vấn\"" + $("#urlq").val().substring(0, 12) + "...\"");
-
-				// get all the new data from the server ...
-				serverUrl = solrUrlPrefix + "lireq?rows=" + $("#slider-maxFrames").val() + "&url=" + $("#urlq").val() + "&field=" + field;
-				console.log(serverUrl);
-				if ($("#slider-1").val()) serverUrl += "&accuracy=" + $("#slider-1").val();
-				if ($("#slider-can").val()) serverUrl += "&candidates=" + $("#slider-can").val();
-
-				console.log(serverUrl);
-				$.getJSON(serverUrl, function (myResult) {
-					//$("#perf").html("Thời gian truy vấn: " + myResult.responseHeader.QTime + " ms ( Truy vấn: " + myResult.RawDocsSearchTime + " ms, Xếp hạng: " + myResult.ReRankSearchTime + " ms)");
-					console.log("Kết quả: " + myResult.docs);
-
-					printVideoResults(myResult.docs);
-					printResults(myResult.docs);
-				});
-			};
-
-
-
-		</script>
-
+		<a id="btnAdd" class="btn btn-success" href="javascript:searchUrl(&#39;ce_ha&#39;);" data-role="button"
+							data-mini="true" data-inline="true" data-toggle="modal" data-target="#basicModal"
+							style="background-color: #13f1a9;">Thêm</a>
+							
 		<div>
-			<!-- <p class="otherLink"><i id="perf">Thời gian tìm kiếm chỉ mục </i></p> -->
-
-			<!-- Nội dung -->
-			<div>
-				<h1>Kết quả truy vấn</h1>
-				<a id="btnAdd" class="btn btn-success" href="javascript:searchUrl(&#39;ce_ha&#39;);" data-role="button"
-					data-mini="true" data-inline="true" data-toggle="modal" data-target="#basicModal"
-					style="background-color: #13f1a9;">Thêm</a>
-			</div>
 			<table id="table-doc" class="table table-hover">
 				<thead>
 					<tr>
@@ -501,58 +300,5 @@
 	</div>
 
 </body>
-<script>
-	function EditDoc(id, rev) {
-		$("#editModal").modal('show');
-		var inputs = document.getElementsByClassName('input-table ' + id);
-		var inputData = [];
-		for (var i = 0; i < inputs.length; i++) {
-			inputs[i].disabled = false;
-			inputs[i].style.border = " 1px";
-			console.log('debug', inputs[i].value);
-			inputData.push(inputs[i].value);
-		}
-		document.getElementById("text-input-edit-name").value = inputData[0];
-		document.getElementById("text-input-edit-bien-tap").value = inputData[1];
-		document.getElementById("text-input-edit-kich-ban").value = inputData[2];
-		document.getElementById("text-input-edit-dao-dien").value = inputData[3];
-		document.getElementById("text-input-edit-bien-tap").value = inputData[4];
-
-
-		$("#edit-modal").click(function () {
-			var dataUpdate = {
-				id: id,
-				content: {
-					"_rev": rev,
-					"TÊN": document.getElementById("text-input-edit-name").value,
-					"THỂ LOẠI": document.getElementById("text-input-edit-bien-tap").value,
-					"KỊCH BẢN": document.getElementById("text-input-edit-kich-ban").value,
-					"ĐẠO DIỄN": document.getElementById("text-input-edit-dao-dien").value,
-					"BIÊN TẬP": document.getElementById("text-input-edit-bien-tap").value,
-					"VIDEO": document.getElementById("text-input-edit-video").value
-				}
-			}
-			var settings = {
-				"url": url_db + database + "/" + dataUpdate.id,
-				"username": username,
-				"password": password,
-				"method": "PUT",
-				"timeout": 0,
-				"headers": {
-					"Content-Type": "application/json",
-					"Authorization": "Basic " + btoa(username + ":" + password)
-				},
-				"data": JSON.stringify(dataUpdate.content)
-			}
-			$.ajax(settings).done(function (response) {
-				console.log(response);
-
-				location.reload();
-			});
-		});
-
-	}
-
-</script>
 
 </html>

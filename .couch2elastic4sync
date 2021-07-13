@@ -1,5 +1,0 @@
-couch=http://localhost:5984
-database=multimediia
-elasticsearch=http://localhost:9200
-indexName=multimediia
-indexType=listing

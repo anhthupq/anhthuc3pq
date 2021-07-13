@@ -22,7 +22,7 @@ router.put('/edit/:id', async function (req, res) {
   try{
     const response = await multimedia.insert({
       _id: req.params.id,
-      _rev: req.body._rev
+      ...req.body
     });
     res.send({
       status: response.ok
