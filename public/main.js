@@ -211,24 +211,30 @@ $(function () {
       "KỊCH BẢN": $("#text-input-kich-ban").val(),
       "ĐẠO DIỄN": $("#text-input-dao-dien").val(),
       "BIÊN TẬP": $("#text-input-bien-tap").val(),
-      "VIDEO": $("#text-input-video"),
     };
-    fetch("/database/add", {
-      method: "POST", // or 'PUT'
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setTimeout(()=>{
-            location.reload();
-        },500)
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+
+    const formData = new FormData();
+    for(const name in body) {
+      formData.append(name, body[name]);
+    }
+    try {
+      formData.append('VIDEO',$('#text-input-video')[0].files[0])
+      console.log(`append: VIDEO, value=${formData.get('VIDEO')}`)
+    } catch(e){
+      console.log('API /add', e)
+    }
+
+
+    fetch(
+      "/database/add",
+      {
+        method: "POST",
+        body: formData,
+      }
+    )
+      .then(response => response.json())
+      .then(data => setTimeout(() => location.reload(), 500))
+      .catch(error => console.error("Error:", error));
   }
 
   function videoResults(name, path) {

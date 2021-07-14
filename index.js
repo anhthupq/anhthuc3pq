@@ -1,8 +1,10 @@
 const express = require('express');
 
 const app = express();
+const logger = require('morgan');
 const query = require('./src/query')
 const database = require('./src/database')
+
 
 app.use(express.json());
 app.use('/public',express.static('public'));
