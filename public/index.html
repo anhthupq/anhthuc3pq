@@ -1,0 +1,296 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Truy vấn và cập nhật dữ liệu đa phương tiện</title>
+
+	<link rel="stylesheet" href='/public/main.css' />
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="https://use.fontawesome.com/releases/v5.15.3/js/all.js" data-auto-a11y="true"></script>
+	<script src="http://code.jquery.com/jquery-1.11.1.min.js"> </script>
+	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"> </script>
+	<LINK REL="SHORTCUT ICON" HREF="favicon1.ico">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	<!-- Latest compiled JavaScript -->
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	<!-- for capturing video frames
+  	<script src="canvas2image.js"></script> -->
+
+	<script src="/public/main.js" lang="text/javascript">
+
+	</script>
+</head>
+
+<body>
+	<!--Edit Modal-->
+	<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModal" >
+		<div class="modal-dialog">
+			<div class="modal-content" style="padding: 10px;">
+				<div class="modal-header">
+					<h4 class="modal-title" id="myModalLabel">Sửa</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group row">
+						<label for="example-email-input" class="col-2 col-form-label">Tên</label>
+						<div class="col-6">
+							<input class="form-control" type="email" id="text-input-edit-name">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="example-url-input" class="col-2 col-form-label">Thể loại</label>
+						<div class="col-6">
+							<input class="form-control" type="url" id="text-input-edit-the-loai">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="example-url-input" class="col-2 col-form-label">Kịch bản</label>
+						<div class="col-6">
+							<input class="form-control" type="url" id="text-input-edit-kich-ban">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="example-url-input" class="col-2 col-form-label">Đạo diễn</label>
+						<div class="col-6">
+							<input class="form-control" type="url" id="text-input-edit-dao-dien">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="example-url-input" class="col-2 col-form-label">Biên tập</label>
+						<div class="col-6">
+							<input class="form-control" type="url" id="text-input-edit-bien-tap">
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+					<button id="edit-modal" type="button" class="btn btn-primary">Cập nhật</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- basic modal -->
+	<div class="modal fade" id="basicModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content" style="padding: 10px;">
+				<div class="modal-header">
+					<h4 class="modal-title" id="myModalLabel">Thêm Doc</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group row">
+						<label for="example-email-input" class="col-2 col-form-label">Tên</label>
+						<div class="col-6">
+							<input class="form-control" type="email" id="text-input-name">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="example-url-input" class="col-2 col-form-label">Thể loại</label>
+						<div class="col-6">
+							<input class="form-control" type="url" id="text-input-the-loai">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="example-url-input" class="col-2 col-form-label">Kịch bản</label>
+						<div class="col-6">
+							<input class="form-control" type="url" id="text-input-kich-ban">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="example-url-input" class="col-2 col-form-label">Đạo diễn</label>
+						<div class="col-6">
+							<input class="form-control" type="url" id="text-input-dao-dien">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="example-url-input" class="col-2 col-form-label">Biên tập</label>
+						<div class="col-6">
+							<input class="form-control" type="url" id="text-input-bien-tap">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="example-url-input" class="col-2 col-form-label">File</label>
+						<input type="file" id="text-input-file" accept="*/*">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+					<button type="button" class="btn btn-primary" id="btn-add-doc">Thêm</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="loginModal" class="modal fade">
+		<div class="modal-dialog modal-login">
+			<div class="modal-content">
+				<div class="modal-header">
+					<div class="avatar"> <img src="https://www.pintire.com/wp-content/uploads/2019/10/avatar.png"
+							alt="Avatar"> </div>
+					<h4 class="modal-title">Admin Login</h4> <button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+				</div>
+				<div class="modal-body">
+
+					<div class="form-group"> <input type="text" class="form-control" name="username"
+							placeholder="Username" required="required" id="inputValueUsername"> </div>
+					<div class="form-group"> <input type="password" class="form-control" name="password"
+							placeholder="Password" required="required" id="inputValuePass"> </div>
+					<div class="form-group"><button id="login" class="btn btn-primary btn-lg btn-block login-btn"
+						>Login</button> </div>
+
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<div data-role="page" style="width:100%;">
+		<div style="display: flex; justify-content: space-between; align-items: center; text-align: center;">
+			<div style="width: calc(100vw - 12vw);">
+				<!-- <div style="width:100%; text-align:right; background-color: #FFF">
+					<center><img src="img/logo.png" /></center>
+				</div> -->
+				<div class="ui-corner-all custom-corners" style="width: 75%; margin: 0px auto;">
+					<div class="ui-body ui-body-a">
+						<p style="font-size:150%;"> <strong>TRUY VẤN VÀ CẬP NHẬT DỮ LIỆU ĐA PHƯƠNG
+								TIỆN</strong></p>
+					</div>
+				</div>
+
+			</div>
+			<a id="btnLogin" href="#loginModal" class="trigger-btn" data-toggle="modal">Đăng nhập</a>
+			<a id="btnLogout" class="trigger-btn-logout" onclick="Logout()">Đăng xuất</a>
+		</div>
+		<div class="ui-field-contain" style="width: 75%; margin: 0px auto;">
+			<p>
+			<p style="font-size:140%;"><strong> Truy vấn dữ liệu<strong></p>
+
+			<table>
+				<tr>
+					<th>
+						<label for="tagsearch">Truy vấn theo: &ensp;</label>
+					</th>
+					<th>
+						<select id="typeSearch" style="color: black;">
+							<!-- tên, thể loại, đạo diễn, kịch bản, biên tập -->
+							<option value="name">Tên</option>
+							<option value="type">Thể loại</option>
+							<option value="director">Đạo diễn</option>
+							<option value="content">Kịch bản</option>
+							<option value="writer">Biên tập</option>
+						</select>
+					</th>
+					<th>
+						<input type="text" data-mini="true" id="tagsearch" name="tagsearch"
+							placeholder="Nhập thông tin ..." value="" />
+					</th>
+					<th>
+						<a href="javascript:void(0);" data-role="button" data-mini="true"
+							data-inline="true" id="btn-search">Tìm</a>
+					</th>
+
+				</tr>
+
+			</table>
+			</p>
+
+		</div>
+		<!-- <div class="ui-field-contain" style="width: 75%; margin: 0px auto;">
+			<input type="file" id="real-file" style="display: none; " accept=".gif,.jpg,.jpeg,.png" />
+			<p style="font-size:140%;">
+				<strong>Truy vấn bằng đường dẫn(URL)</strong>
+			<table style="width: 50%;">
+
+				<tr style="width: 100%;">
+					<th>
+						<input type="text" data-mini="true" id="urlq" name="urlq" placeholder="http://..." />
+					</th>
+					<th style="width: 10%;">
+						<button type="button" id="custom-button" style="border-radius: 5px;
+							cursor: pointer;">Chọn file</button>
+
+					</th>
+					<th>
+						<a href="javascript:searchUrl(&#59;ce_ha&#59;);" data-role="button" data-mini="true"
+							data-inline="true">Tìm</a>
+					</th>
+
+				</tr>
+
+				</p>
+			</table>
+			</p>
+			<p>
+				<input type="file" id="real-file" style="display: none; " accept=".gif,.jpg,.jpeg,.png" />
+			<p style="font-size:140%;"><strong> Cập nhật dữ liệu<strong></p>
+			<a href="javascript:searchUrl(&#39;ce_ha&#39;);" data-role="button" data-mini="true" data-inline="true"
+				data-toggle="modal" data-target="#basicModal">Thêm</a>
+			<a href="javascript:searchUrl(&#39;fc_ha&#39;);" data-role="button" data-mini="true"
+				data-inline="true">Chỉnh sửa</a>
+			<a href="javascript:searchUrl(&#39;jc_ha&#39;);" data-role="button" data-mini="true" data-inline="true"
+				onclick="DeleteDoc()">Xoá</a>
+			</p>
+		</div> -->
+
+
+		<br>
+
+		<script>
+			// const customBtn = document.getElementById("custom-button");
+			// const realFileBtn = document.getElementById("real-file")
+			// const localImageUrl = document.getElementById("urlq");
+			// var prefixUrl = "http://localhost:8983/solr/image/";
+			//
+			// customBtn.addEventListener("click", function () {
+			// 	realFileBtn.click();
+			// });
+			//
+			// realFileBtn.addEventListener("change", function () {
+			// 	if (realFileBtn.value) {
+			// 		localImageUrl.value = prefixUrl + realFileBtn.value.match(
+			// 			/[\/\\]([\w\d\s\.\-\(\)]+)$/
+			// 		)[1];
+			// 	} else {
+			// 		localImageUrl.value = "No file chosen, yet.";
+			// 	}
+			// });
+		</script>
+
+		<a id="btnAdd" class="btn btn-success" href="javascript:searchUrl(&#39;ce_ha&#39;);" data-role="button"
+							data-mini="true" data-inline="true" data-toggle="modal" data-target="#basicModal"
+							style="background-color: #13f1a9;">Thêm</a>
+
+		<div>
+			<table id="table-doc" class="table table-hover">
+				<thead>
+					<tr>
+						<th scope="col">CHỌN</th>
+						<th scope="col">TÊN</th>
+						<th scope="col">THỂ LOẠI</th>
+						<th scope="col">ĐẠO DIỄN</th>
+						<th scope="col">KỊCH BẢN</th>
+						<th scope="col">BIÊN TẬP</th>
+						<th scope="col">FILE</th>
+					</tr>
+				</thead>
+				<!-- <tbody id="table-cart-body">
+				</tbody> -->
+			</table>
+			<div id="myResults" class="container-fluid"></div>
+
+			<br style="clear:both;" />
+		</div>
+
+
+	</div>
+
+</body>
+
+</html>
