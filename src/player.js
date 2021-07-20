@@ -23,17 +23,31 @@ router.get('/:docId/:attachId', async function(req, res){
         </video>
       `
     } else if(contentType.includes('ms')){
-        res.redirect(resourceURL);
-        return
+        documentTag=`
+        <div id="pspdfkit" style="width: 100%; height: 100vh;"></div>
+        <script>
+        	PSPDFKit.load({
+        		container: "#pspdfkit",
+        		document: "${resourceURL}",
+        	})
+        	.then(function(instance) {
+        		console.log("PSPDFKit loaded", instance);
+        	})
+        	.catch(function(error) {
+        		console.error(error.message);
+        	});
+        </script>
+        `
     }
   } catch(e){
-
+    console.log(e)
   }
   res.send(`
     <!DOCTYPE html>
     <html>
       <head>
         <meta name="viewport" content="width=device-width">
+        <script src="/public/dist/pspdfkit.js"></script>
       </head>
       <body>
         ${documentTag}
