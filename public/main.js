@@ -22,6 +22,8 @@ $(function () {
 
   function reloadPage(){
     setTimeout(() => {
+      $('#tagSearch').val('')
+      $('#typeSearch').prop('selectedIndex',0);
       location.reload()
 
       $("#text-input-edit-name").val('');
@@ -29,7 +31,7 @@ $(function () {
       $("#text-input-edit-dao-dien").val('');
       $("#text-input-edit-kich-ban").val('');
       $("#text-input-edit-bien-tap").val('');
-      $("#text-input-edit-videeo").val('');
+      $("#text-input-edit-video").val('');
     }, 1000)
   }
 
