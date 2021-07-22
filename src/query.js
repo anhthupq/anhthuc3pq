@@ -1,5 +1,5 @@
 const { Client } = require('@elastic/elasticsearch')
-const client = new Client({ node: 'http://localhost:9200' })
+const client = new Client({ node: 'http://localhost:9200/' })
 const express = require('express')
 const router = express.Router();
 
@@ -9,7 +9,7 @@ const mappingQuery = {
   'type': 'THỂ LOẠI',
   'director': 'ĐẠO DIỄN',
   'content': 'KỊCH BẢN',
-  'writer':'BIÊN TẬP'
+  'writer': 'BIÊN TẬP'
 }
 
 router.get('/search', async function (req, res) {
@@ -19,29 +19,37 @@ router.get('/search', async function (req, res) {
   };
   let query = {};
   try {
-    if(Object.keys(req.query).length !== 0){
+    if (Object.keys(req.query).length !== 0) {
       try {
-        let firstKey = 'doc.'+ mappingQuery[Object.keys(req.query)[0]]; // "plainKey"
+        let firstKey = 'doc.' + mappingQuery[Object.keys(req.query)[0]]; // "plainKey"
         let firstValue = Object.values(req.query)[0]; // "plain value"
-        if(firstValue){
+        if (firstValue) {
           query = {
-            query:{
-              match: {
-                [firstKey]: firstValue
+            query: {
+              nested: {
+                path: "doc",
+                query: {
+                  match: {
+                    [firstKey]: firstValue
+                  }
+                }
               }
             }
           }
         }
-      } catch(e){
+      } catch (e) {
 
       }
     }
-    const { body: { hits } } = await client.search({
-      from:  req.page  || 0,
-      size:  req.limit || 100,
+    const res = await client.search({
+      from: req.page || 0,
+      size: req.limit || 100,
       index: 'multimedia',
-      body:  query
+      body: query
     });
+
+    const { body: { hits } } = res
+
     data = {
       total: hits.total.value,
       docs: hits.hits.map(item => ({
@@ -49,8 +57,9 @@ router.get('/search', async function (req, res) {
         doc: item._source.doc
       }))
     }
-  } catch(e){
-    console.log('/search',e)
+
+  } catch (e) {
+    console.log('/search', e)
   }
 
   res.send(data)

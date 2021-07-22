@@ -1,4 +1,4 @@
-const nano = require('nano')('http://admin:admin@localhost:5984');
+const nano = require('nano')('http://admin:123456@localhost:5984');
 const multimedia = nano.db.use('multimedia');
 const express = require('express')
 const router = express.Router();
