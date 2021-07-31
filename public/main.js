@@ -12,11 +12,6 @@ $(function () {
   $("#btn-add-doc").click(addDoc);
   $("#login").click(handleLogin);
   $("#btn-search").click(loadData)
-  $("#typeSearch").change(function(){
-      const searchType = $(this).children("option:selected").val();
-      localStorage.setItem("searchType",searchType)
-    });
-
 
   loadData()
 
@@ -106,20 +101,9 @@ $(function () {
   }
 
   function loadData() {
-    const searchType = localStorage.getItem('searchType') || 'name'
-    const searchTag = $('#tagsearch').val()
-    console.log({
-      searchType,
-      searchTag
-    })
+    const query = $('#tagsearch').val() || ''
     let url = '/search';
-    if(searchTag){
-      const params = new URLSearchParams({
-        [searchType]: searchTag
-      });
-      url = `/search?${params.toString()}`
-    }
-
+    url = `/search?q=${query}`
     const myHeaders = new Headers();
     myHeaders.append('pragma', 'no-cache');
     myHeaders.append('cache-control', 'no-cache');

@@ -26,7 +26,7 @@
 
 <body>
 	<!--Edit Modal-->
-	<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModal" >
+	<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModal">
 		<div class="modal-dialog">
 			<div class="modal-content" style="padding: 10px;">
 				<div class="modal-header">
@@ -142,8 +142,8 @@
 							placeholder="Username" required="required" id="inputValueUsername"> </div>
 					<div class="form-group"> <input type="password" class="form-control" name="password"
 							placeholder="Password" required="required" id="inputValuePass"> </div>
-					<div class="form-group"><button id="login" class="btn btn-primary btn-lg btn-block login-btn"
-						>Login</button> </div>
+					<div class="form-group"><button id="login"
+							class="btn btn-primary btn-lg btn-block login-btn">Login</button> </div>
 
 				</div>
 			</div>
@@ -169,38 +169,14 @@
 			<a id="btnLogout" class="trigger-btn-logout" onclick="Logout()">Đăng xuất</a>
 		</div>
 		<div class="ui-field-contain" style="width: 75%; margin: 0px auto;">
-			<p>
 			<p style="font-size:140%;"><strong> Truy vấn dữ liệu<strong></p>
 
-			<table>
-				<tr>
-					<th>
-						<label for="tagsearch">Truy vấn theo: &ensp;</label>
-					</th>
-					<th>
-						<select id="typeSearch" style="color: black;">
-							<!-- tên, thể loại, đạo diễn, kịch bản, biên tập -->
-							<option value="name">Tên</option>
-							<option value="type">Thể loại</option>
-							<option value="director">Đạo diễn</option>
-							<option value="content">Kịch bản</option>
-							<option value="writer">Biên tập</option>
-						</select>
-					</th>
-					<th>
-						<input type="text" data-mini="true" id="tagsearch" name="tagsearch"
-							placeholder="Nhập thông tin ..." value="" />
-					</th>
-					<th>
-						<a href="javascript:void(0);" data-role="button" data-mini="true"
-							data-inline="true" id="btn-search">Tìm</a>
-					</th>
+			<div style="display: inline-block; width: 100%;">
+				<input type="text" data-mini="true" id="tagsearch" name="tagsearch" placeholder="Nhập thông tin ..."
+				value="" />
 
-				</tr>
-
-			</table>
-			</p>
-
+			<a href="javascript:void(0);" data-role="button" data-mini="true" data-inline="true" id="btn-search">Tìm</a>
+			</div>
 		</div>
 		<!-- <div class="ui-field-contain" style="width: 75%; margin: 0px auto;">
 			<input type="file" id="real-file" style="display: none; " accept=".gif,.jpg,.jpeg,.png" />
@@ -264,8 +240,8 @@
 		</script>
 
 		<a id="btnAdd" class="btn btn-success" href="javascript:searchUrl(&#39;ce_ha&#39;);" data-role="button"
-							data-mini="true" data-inline="true" data-toggle="modal" data-target="#basicModal"
-							style="background-color: #13f1a9;">Thêm</a>
+			data-mini="true" data-inline="true" data-toggle="modal" data-target="#basicModal"
+			style="background-color: #13f1a9;">Thêm</a>
 
 		<div>
 			<table id="table-doc" class="table table-hover">
