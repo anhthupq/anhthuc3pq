@@ -12,6 +12,11 @@ $(function () {
   $("#btn-add-doc").click(addDoc);
   $("#login").click(handleLogin);
   $("#btn-search").click(loadData)
+  $("#tagsearch").on('keyup', function (e) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+        loadData()
+    }
+  });
 
   loadData()
 

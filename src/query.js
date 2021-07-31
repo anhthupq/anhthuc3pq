@@ -3,52 +3,38 @@ const client = new Client({ node: 'http://localhost:9200/' })
 const express = require('express')
 const router = express.Router();
 
-// respond with "hello world" when a GET request is made to the homepage
-const mappingQuery = {
-  'name': 'TÊN',
-  'type': 'THỂ LOẠI',
-  'director': 'ĐẠO DIỄN',
-  'content': 'KỊCH BẢN',
-  'writer': 'BIÊN TẬP'
-}
 
 router.get('/search', async function (req, res) {
   let data = {
     total: 0,
     docs: []
   };
-  let query = {};
-  try {
-    if (Object.keys(req.query).length !== 0) {
-      try {
-        let firstKey = 'doc.' + mappingQuery[Object.keys(req.query)[0]]; // "plainKey"
-        let firstValue = Object.values(req.query)[0]; // "plain value"
-        if (firstValue) {
-          query = {
-            query: {
-              nested: {
-                path: "doc",
-                query: {
-                  match: {
-                    [firstKey]: firstValue
-                  }
-                }
-              }
+  let body = {
+  }
+  let queryString = req.query.q
+  if (queryString) {
+    body = {
+      query: {
+        nested: {
+          path: "doc",
+          query: {
+            multi_match: {
+              query: queryString,
+              fields: ['doc.TÊN', 'doc.THỂ LOẠI', 'doc.ĐẠO DIỄN', 'doc.KỊCH BẢN', 'doc.BIÊN TẬP'],
+              analyzer: "standard_asciifolding"
             }
           }
         }
-      } catch (e) {
-
       }
     }
-    const res = await client.search({
+  }
+  try {
+    const { body: { hits } } = await client.search({
       from: req.page || 0,
       size: req.limit || 100,
       index: 'multimedia',
-      body: query
+      body
     });
-
-    const { body: { hits } } = res
 
     data = {
       total: hits.total.value,
@@ -57,9 +43,8 @@ router.get('/search', async function (req, res) {
         doc: item._source.doc
       }))
     }
-
   } catch (e) {
-    console.log('/search', e)
+    console.log('search', e)
   }
 
   res.send(data)
