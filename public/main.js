@@ -12,6 +12,11 @@ $(function () {
   $("#btn-add-doc").click(addDoc);
   $("#login").click(handleLogin);
   $("#btn-search").click(loadData)
+  $("#typeSearch").change(function(){
+    const searchType = $(this).children("option:selected").val();
+    localStorage.setItem("searchType",searchType)
+  });
+
   $("#tagsearch").on('keyup', function (e) {
     if (e.key === 'Enter' || e.keyCode === 13) {
         loadData()
@@ -107,9 +112,21 @@ $(function () {
   }
 
   function loadData() {
-    const query = $('#tagsearch').val() || ''
-    let url = '/search';
-    url = `/search?q=${query}`
+    // const query = $('#tagsearch').val() || ''
+    const searchType = localStorage.getItem('searchType') || 'q'
+    const searchTag = $('#tagsearch').val()
+
+    let url = '/search'
+    if(searchTag){
+      const params = new URLSearchParams({
+        [searchType]: searchTag
+      });
+      url = `/search?${params.toString()}`
+    }
+
+    console.log('search request', url)
+
+    
     const myHeaders = new Headers();
     myHeaders.append('pragma', 'no-cache');
     myHeaders.append('cache-control', 'no-cache');
