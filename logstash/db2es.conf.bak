@@ -1,0 +1,32 @@
+ input {
+  couchdb_changes {
+      db => "multimedia"
+      host => "localhost"
+      port => 5984
+      codec => "json"
+      username => "admin"
+      password => "123456"
+      initial_sequence => 0 #this is only required for the an initial indexing
+      keep_revision=>true
+  }
+}
+
+output {
+  elasticsearch {
+      action =>"index"
+      document_id => "%{[@metadata][_id]}"
+      hosts => ["localhost:9200"]
+      index => "multimedia"
+    }
+
+  if [@metadata][action] == "delete" {
+    elasticsearch{
+      action => "%{[@metadata][action]}"
+      document_id => "%{[@metadata][_id]}"
+      hosts => ["localhost:9200"]
+      index => "multimedia"
+    }
+  }
+
+    #stdout {} #enable this option for debugging purpose
+}

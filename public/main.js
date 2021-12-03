@@ -17,6 +17,7 @@ $(function () {
         loadData()
     }
   });
+  $('#btnLogout').click(handleLogout);
 
   loadData()
 
@@ -75,7 +76,7 @@ $(function () {
     $("#text-input-edit-dao-dien").val(inputData[2]);
     $("#text-input-edit-kich-ban").val(inputData[3]);
     $("#text-input-edit-bien-tap").val(inputData[4]);
-    $("#text-input-edit-videeo").val(inputData[5]);
+    //$("#text-input-edit-video").val(inputData[5]);
 
     // set onclick addEventListener
     $('#edit-modal').click(function(){
@@ -86,7 +87,7 @@ $(function () {
         "KỊCH BẢN": $("#text-input-edit-kich-ban").val(),
         "ĐẠO DIỄN": $("#text-input-edit-dao-dien").val(),
         "BIÊN TẬP": $("#text-input-edit-bien-tap").val(),
-        "FILE": $("#text-input-edit-video"),
+        //"FILE": $("#text-input-edit-video").val(),
       };
       fetch("/database/edit/"+id, {
         method: "PUT", // or 'PUT'
@@ -151,11 +152,11 @@ $(function () {
 
                   <td id="${media.id}" scope="row">
                     <td scope="col">
-                      <button class="btn btn-primary updateButton"  onclick="EditDoc('${media.id}','${media.doc._rev}') ">Sửa</button>
+                      <button style="display: ${localStorage.getItem('isLogged')?'block':'none'}" class="btn btn-primary updateButton"  onclick="EditDoc('${media.id}','${media.doc._rev}') ">Sửa</button>
                     </td>
 
                   <td scope="col">
-                    <button class="btn btn-danger deleteButton" onclick="DeleteDoc('${media.id}','${media.doc._rev}')">Xoá</button>
+                    <button style="display: ${localStorage.getItem('isLogged')?'block':'none'}" class="btn btn-danger deleteButton" onclick="DeleteDoc('${media.id}','${media.doc._rev}')">Xoá</button>
                   </td>
 
                 </tr>`);
@@ -220,7 +221,10 @@ $(function () {
       formData.append(name, body[name]);
     }
     try {
-      formData.append('FILE',$('#text-input-file')[0].files[0])
+      const path = $('#text-input-file')[0].files[0];
+      if(path){
+         formData.append('FILE',path)
+      }
     } catch(e){
       console.log('API /add', e)
     }
@@ -234,6 +238,7 @@ $(function () {
       }
     )
       .then(response => response.json())
+      //.then(data=>console.log(data))
       .then(data => reloadPage())
       .catch(error => console.error("Error:", error));
   }
@@ -512,7 +517,7 @@ $(function () {
     console.log("Debugs login", JSON.parse(localStorage.getItem("isLogged")));
   }
   function handleLogout() {
-    localStorage.removeItem("isLogged");
+    localStorage.clear();
     reloadPage()
   }
 });

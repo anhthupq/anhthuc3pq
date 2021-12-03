@@ -1,5 +1,7 @@
-curl -X DELETE "localhost:9200/multimedia?pretty"
-curl -X PUT "localhost:9200/multimedia?pretty" -H 'Content-Type: application/json' -d'
+#systemctl restart elasticsearch
+
+curl -x "" -X DELETE "localhost:9200/multimedia?pretty"
+curl -x "" -X PUT "localhost:9200/multimedia?pretty" -H 'Content-Type: application/json' -d'
 {
     "settings": {
         "analysis": {

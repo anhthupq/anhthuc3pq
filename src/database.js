@@ -13,9 +13,13 @@ const supportKey = ["TÊN","THỂ LOẠI","KỊCH BẢN","ĐẠO DIỄN","BIÊN 
 
 router.post('/add/', upload.single('FILE'), async function (req, res) {
   try {
-    const doc = req.body
+    const rawDoc = req.body
+    const doc = {}
+    supportKey.forEach(key=>{
+	doc[key] = rawDoc[key]
+    })
+    console.log('insert document:',doc)
     const docRes = await multimedia.insert(doc)
-
     if(req.file){
       const file = req.file
       const filePath = file.path
@@ -51,6 +55,8 @@ router.post('/add/', upload.single('FILE'), async function (req, res) {
 router.put('/edit/:id', async function (req, res) {
   try {
     const doc = await multimedia.get(req.params.id)
+    console.log('before edit document',doc)
+    console.log('edit part',req.body)
     const response = await multimedia.insert({
       ...doc,
       _id: req.params.id,
