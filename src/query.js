@@ -22,7 +22,7 @@ router.get('/search', async function (req, res) {
   // search all fields
   if(req.query.q) {
     matcher = {
-      query: queryString, 
+      query: req.query.q, 
       fields: ['doc.TÊN', 'doc.THỂ LOẠI', 'doc.ĐẠO DIỄN', 'doc.KỊCH BẢN', 'doc.BIÊN TẬP'],
       analyzer: "standard_asciifolding"
     }
