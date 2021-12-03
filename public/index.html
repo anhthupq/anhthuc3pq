@@ -170,12 +170,41 @@
 		</div>
 		<div class="ui-field-contain" style="width: 75%; margin: 0px auto;">
 			<p style="font-size:140%;"><strong> Truy vấn dữ liệu<strong></p>
-
+<!-- 
 			<div style="display: inline-block; width: 100%;">
 				<input type="text" data-mini="true" id="tagsearch" name="tagsearch" placeholder="Nhập thông tin ..."
-				value="" />
+				value="" /> -->
+			<table>
+				<tr>
+					<th>
+						<label for="tagsearch">Truy vấn theo: &ensp;</label>
+					</th>
+					<th>
+						<select id="typeSearch" style="color: black;">
+							<!-- tên, thể loại, đạo diễn, kịch bản, biên tập -->
+							<option value="q">Tất cả</option>
+							<option value="name">Tên</option>
+							<option value="type">Thể loại</option>
+							<option value="director">Đạo diễn</option>
+							<option value="content">Kịch bản</option>
+							<option value="writer">Biên tập</option>
+						</select>
+					</th>
+					<th>
+						<input type="text" data-mini="true" id="tagsearch" name="tagsearch"
+							placeholder="Nhập thông tin ..." value="" />
+					</th>
+					<th>
+						<a href="javascript:void(0);" data-role="button" data-mini="true"
+							data-inline="true" id="btn-search">Tìm</a>
+					</th>
 
-			<a href="javascript:void(0);" data-role="button" data-mini="true" data-inline="true" id="btn-search">Tìm</a>
+				</tr>
+
+			</table>
+	
+
+			<!-- <a href="javascript:void(0);" data-role="button" data-mini="true" data-inline="true" id="btn-search">Tìm</a> -->
 			</div>
 		</div>
 		<!-- <div class="ui-field-contain" style="width: 75%; margin: 0px auto;">
