@@ -54,7 +54,7 @@ router.get('/search', async function (req, res) {
 
       }
   }
-    body = { query }
+  }
   try {
     const { body: { hits } } = await client.search({
       from: req.page || 0,
